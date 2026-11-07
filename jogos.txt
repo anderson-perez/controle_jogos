@@ -1,0 +1,18 @@
+Nome do jogo......: ATARI
+Ano lançamento....: 1976
+Gênero do jogo....: ACAO
+Produtora do jogo.: ATARI
+Valor.............: 6.00
+
+Nome do jogo......: MARIO
+Ano lançamento....: 1900
+Gênero do jogo....: AVENTURA
+Produtora do jogo.: NINTENDO
+Valor.............: 1.00
+
+Nome do jogo......: ZELDA
+Ano lançamento....: 1990
+Gênero do jogo....: AVENTURA
+Produtora do jogo.: NINTENDO
+Valor.............: 2.00
+
