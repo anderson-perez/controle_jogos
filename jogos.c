@@ -35,11 +35,18 @@ void formatar_maiuscula(string str);
 void listar_jogos_cadastrados(no_t *lista);
 int sub_menu_cadastro();
 void exportar_dados_arquivo_texto(char* nome, no_t *lista);
+void salvar_dados_arq_texto(char* nome, no_t *lista);
+void ler_dados_arq_texto(char *nome, no_t **lista);
+
+
 
 int main()
 {
     int opc_principal, opc_sub;
-    no_t *lista = NULL;
+    no_t *lista = NULL, *aux = NULL;
+    string nome;
+
+    ler_dados_arq_texto("base_jogos.txt", &lista);
 
     do {
         opc_principal = menu();
@@ -70,12 +77,36 @@ int main()
 
             case 2: listar_jogos_cadastrados(lista);
                     break;
-            case 3: break;
-            case 4: break;
+            case 3: 
+                printf("Qual o nome do filme que quer buscar\n");
+                fgets(nome,T_STR, stdin);
+                retirar_enter(nome);
+                formatar_maiuscula(nome);
+                aux = localizar_jogo_por_nome(nome, lista);
+                if(aux != NULL){
+                    mostrar_dados_jogo(aux->dados_jogo);
+                }
+                else{
+                    printf("O filme não foi encontrado!!!\n");
+                }
+            
+            break;
+            case 4: 
+                printf("Qual o nome do filme que quer buscar\n");
+                fgets(nome,T_STR, stdin);
+                retirar_enter(nome);
+                formatar_maiuscula(nome);
+                aux = localizar_jogo_por_nome(nome, lista);
+                excluir_no_lista(aux, &lista);
+                break;
 
             case 5: exportar_dados_arquivo_texto("jogos.txt", lista);
                     break;
 
+        }
+
+        if (lista) {
+            salvar_dados_arq_texto("base_jogos.txt", lista);
         }
 
     } while (opc_principal != 0);
@@ -198,7 +229,12 @@ no_t *localizar_ultimo_no_na_lista(no_t *lista)
 
 no_t *localizar_jogo_por_nome(string nome, no_t *lista)
 {
-
+    for(lista; lista != NULL; lista = lista -> prox ){
+        if(strcmp(lista -> dados_jogo.nome, nome) == 0){
+            return lista;
+        }
+    }
+    return NULL;
 }
 
 void mostrar_dados_jogo(jogo_t dados_jogo)
@@ -212,7 +248,20 @@ void mostrar_dados_jogo(jogo_t dados_jogo)
 
 void excluir_no_lista(no_t *no, no_t **lista)
 {
+    no_t *anterior = NULL;
 
+    if (!no) {
+        printf("Jogo nao encontrado!\n");
+    }
+    else if (*lista == no) {
+        *lista = no -> prox;
+        free(no);
+    }
+    else {
+        for (anterior = *lista; anterior -> prox != no; anterior = anterior -> prox);
+        anterior -> prox = no -> prox;
+        free(no);
+    }
 }
 
 void retirar_enter(string str)
@@ -253,3 +302,51 @@ void exportar_dados_arquivo_texto(char* nome, no_t *lista)
 
     fclose(fd);
 }
+
+void salvar_dados_arq_texto(char* nome, no_t *lista)
+{
+    FILE *fp = NULL;
+
+    fp = fopen(nome, "w");
+
+    if (!fp) return;
+
+    for (lista; lista != NULL; lista = lista->prox) {
+        fprintf(fp, "%s\n", lista->dados_jogo.nome);
+        fprintf(fp, "%i\n", lista->dados_jogo.ano_lanc);
+        fprintf(fp, "%s\n", lista->dados_jogo.genero);
+        fprintf(fp, "%s\n", lista->dados_jogo.produtora);
+        fprintf(fp, "%.2f\n", lista->dados_jogo.valor);
+    }
+
+    fclose(fp);
+}
+
+void ler_dados_arq_texto(char *nome, no_t **lista)
+{
+    FILE *fp = NULL;
+    jogo_t novo_jogo;
+    no_t *aux = NULL;
+
+    fp = fopen(nome, "r");
+
+    if (!fp) return;
+
+    while (!feof(fp)) {
+        fgets(novo_jogo.nome, T_STR, fp);
+        retirar_enter(novo_jogo.nome);
+        fscanf(fp, "%i\n", &novo_jogo.ano_lanc);
+        fgets(novo_jogo.genero, T_STR, fp);
+        retirar_enter(novo_jogo.genero);
+        fgets(novo_jogo.produtora, T_STR, fp);
+        retirar_enter(novo_jogo.produtora);
+        fscanf(fp, "%f\n", &novo_jogo.valor);
+        
+        // Criar novo no
+        aux = novo_no(novo_jogo);
+        inserir_jogo_lista_fim(aux, lista);
+    }
+
+    fclose(fp);
+}
+
